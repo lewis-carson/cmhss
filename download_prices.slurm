@@ -7,4 +7,4 @@
 #SBATCH --mem=8GB
 #SBATCH --partition=shared
 
-python3 -u download_prices.py
+python3.11 -u download_prices.py
