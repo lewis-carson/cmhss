@@ -7,4 +7,5 @@
 #SBATCH --mem=8GB
 #SBATCH --partition=shared
 
+source .venv/bin/activate
 python3.11 -u download_prices.py
