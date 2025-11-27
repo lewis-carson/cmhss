@@ -1,3 +1,5 @@
 prices/
 events/
 trades/
+notes/report.*
+!notes/report.tex

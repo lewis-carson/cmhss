@@ -106,7 +106,9 @@ def download_and_save_trades(condition_id):
                     "limit": limit,
                     "offset": offset,
                     "takerOnly": "true",
-                    "market": condition_id
+                    "market": condition_id,
+                    "filterType": "CASH",
+                    "filterAmount": 10000
                 }
                 
                 try:
