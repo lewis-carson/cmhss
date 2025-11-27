@@ -8,7 +8,7 @@ sufficient background information to contextualize this problem for the reader.
 
 What are the main drivers of price between multiple prediction markets?
 
-I do social network analysis to determine which trades are the most common counterparties, move the most volume, and have the highest influence on price movement. I then use regression analysis to determine which features of these trades are the most predictive of price movement. I do text modelling to determine if the composition of trades differs across different types of markets, e.g. political vs. sports vs. entertainment.
+I do social network analysis to determine which trades are the most common counterparties, move the most volume, and have the highest influence on price movement. I then use regression analysis to determine which features of these trades are the most predictive of price movement. I do text modelling to determine if the composition of trades differs across different types of markets, e.g. political vs. sports vs. entertainment. 
 
 3. Document how your data was collected, and briefly state any relevant libraries or
 toolkits that were used. Be sure that your dataset is appropriate for the given research

@@ -11,6 +11,7 @@ OUTPUT_DIR = "trades"
 EVENTS_DIR = "events"
 NO_DATA_FILE = os.path.join(OUTPUT_DIR, "no_data.txt")
 SUBDIRECTORY_MOD = 1000
+MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024  # 50MB cap
 
 # Ensure base trades directory exists
 Path(OUTPUT_DIR).mkdir(exist_ok=True)
@@ -100,56 +101,67 @@ def download_and_save_trades(condition_id):
     try:
         with gzip.open(filename, 'wt', encoding='utf-8') as f:
             f.write('[\n')
-            
+            reached_limit = False
+
             while True:
                 params = {
                     "limit": limit,
                     "offset": offset,
                     "takerOnly": "true",
                     "market": condition_id,
-                    "filterType": "CASH",
-                    "filterAmount": 10000
                 }
-                
+
                 try:
                     response = requests.get(BASE_URL, params=params)
-                    
+
                     if response.status_code == 429:
                         print(f"Rate limited. Waiting {backoff} seconds...")
                         time.sleep(backoff)
                         backoff = min(backoff * 2, 60)
                         continue
-                    
+
                     response.raise_for_status()
-                    backoff = 1 # Reset backoff on success
-                    
+                    backoff = 1  # Reset backoff on success
+
                     trades = response.json()
-                    
+
                     if not trades:
                         break
-                        
+
                     for trade in trades:
+                        if reached_limit:
+                            break
                         if not first_trade:
                             f.write(',\n')
                         json.dump(trade, f, indent=2)
                         first_trade = False
                         total_trades += 1
-                        
+
+                        # Progress log
                         if total_trades % 10000 == 0:
                             print(f"Downloaded {total_trades} trades for {condition_id}...")
-                    
+
+                        # Enforce file size cap based on compressed size position
+                        if f.tell() >= MAX_FILE_SIZE_BYTES:
+                            print(f"File size limit (50MB) reached for {condition_id}. Stopping early at {total_trades} trades.")
+                            reached_limit = True
+                            break
+
+                    if reached_limit:
+                        break
+
                     if len(trades) < limit:
                         break
-                        
+
                     offset += limit
-                    time.sleep(10/75) # Small delay to be nice
-                    
+                    time.sleep(10 / 75)  # Small delay to be nice
+
                 except requests.exceptions.RequestException as e:
                     print(f"Error downloading trades for {condition_id}: {e}")
-                    return None # Indicate failure
-            
+                    return None  # Indicate failure
+
             f.write('\n]')
-            
+
     except IOError as e:
         print(f"Error writing to file {filename}: {e}")
         return None
